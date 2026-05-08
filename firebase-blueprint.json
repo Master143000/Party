@@ -1,0 +1,159 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["customer", "admin"] },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Menu category",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "icon": { "type": "string" },
+        "order": { "type": "number" }
+      },
+      "required": ["name", "order"]
+    },
+    "MenuItem": {
+      "title": "MenuItem",
+      "description": "Food item in the menu",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "image": { "type": "string" },
+        "discount": { "type": "number" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "spiceLevel": { "type": "number" },
+        "available": { "type": "boolean" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["name", "price", "category", "available"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer order",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "phone": { "type": "string" },
+        "address": { "type": "string" },
+        "total": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "preparing", "out-for-delivery", "delivered", "cancelled"] },
+        "type": { "type": "string", "enum": ["delivery", "takeaway"] },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["customerName", "phone", "total", "status", "type", "createdAt"]
+    },
+    "OrderItem": {
+      "title": "OrderItem",
+      "description": "Item within an order",
+      "type": "object",
+      "properties": {
+        "productId": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "quantity": { "type": "number" },
+        "image": { "type": "string" }
+      },
+      "required": ["productId", "name", "price", "quantity"]
+    },
+    "Reservation": {
+      "title": "Reservation",
+      "description": "Table reservation",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "guests": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "rejected", "cancelled"] },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["name", "phone", "date", "time", "guests", "status"]
+    },
+    "Coupon": {
+      "title": "Coupon",
+      "description": "Discount coupon",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string" },
+        "discount": { "type": "number" },
+        "type": { "type": "string", "enum": ["percentage", "fixed"] },
+        "expiryDate": { "type": "string" },
+        "active": { "type": "boolean" }
+      },
+      "required": ["code", "discount", "type", "active"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Customer review",
+      "type": "object",
+      "properties": {
+        "userName": { "type": "string" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["userName", "rating", "createdAt"]
+    },
+    "Banner": {
+      "title": "Banner",
+      "description": "Hero section banner",
+      "type": "object",
+      "properties": {
+        "image": { "type": "string" },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "link": { "type": "string" },
+        "active": { "type": "boolean" }
+      },
+      "required": ["image", "title", "active"]
+    },
+    "Settings": {
+      "title": "Settings",
+      "description": "Restaurant settings",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "address": { "type": "string" },
+        "whatsapp": { "type": "string" },
+        "openTime": { "type": "string" },
+        "closeTime": { "type": "string" },
+        "deliveryCharges": { "type": "number" }
+      },
+      "required": ["name", "phone"]
+    }
+  },
+  "firestore": {
+    "users": { "schema": "User", "description": "User profiles" },
+    "menu_categories": { "schema": "Category", "description": "Menu categories" },
+    "menu_items": { "schema": "MenuItem", "description": "Menu items" },
+    "orders": { "schema": "Order", "description": "Customer orders" },
+    "orders/{orderId}/items": { "schema": "OrderItem", "description": "Items in an order" },
+    "reservations": { "schema": "Reservation", "description": "Table bookings" },
+    "coupons": { "schema": "Coupon", "description": "Discount codes" },
+    "reviews": { "schema": "Review", "description": "Customer feedback" },
+    "banners": { "schema": "Banner", "description": "Promotional banners" },
+    "settings": { "schema": "Settings", "description": "App-wide configuration" }
+  }
+}
