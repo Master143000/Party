@@ -2,12 +2,21 @@ import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import Home from './Home';
 import Menu from './Menu';
+import About from './About';
+import Reservations from './Reservations';
+import Contact from './Contact';
 import AdminDashboard from './AdminDashboard';
 import AdminMenu from './AdminMenu';
+import AdminOrders from './AdminOrders';
+import AdminReservations from './AdminReservations';
+import AdminCustomers from './AdminCustomers';
+import AdminPromotions from './AdminPromotions';
+import AdminSettings from './AdminSettings';
 import { ShoppingCart, Menu as MenuIcon, X, Phone, User, Settings as AdminIcon, MapPin, Clock } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from './AuthContext';
 import { useCart } from './CartContext';
+import { Toaster } from 'react-hot-toast';
 
 export default function App() {
   const location = useLocation();
@@ -20,6 +29,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#0C0C0C] font-sans selection:bg-primary selection:text-white">
+      <Toaster position="top-center" />
       {/* Navigation */}
       {!isAdminPage && (
         <nav className="fixed top-0 left-0 right-0 z-50 p-6 md:px-12 flex justify-between items-center transition-all duration-500 bg-[#0C0C0C]/80 backdrop-blur-md border-b border-white/5">
@@ -32,12 +42,18 @@ export default function App() {
           
           <div className="hidden md:flex items-center gap-8">
             <Link to="/" className="hover:text-primary transition-colors">Home</Link>
+            <Link to="/about" className="hover:text-primary transition-colors">About</Link>
             <Link to="/menu" className="hover:text-primary transition-colors">Menu</Link>
             <Link to="/reservations" className="hover:text-primary transition-colors">Book a Table</Link>
-            <button className="p-3 glass rounded-full relative hover:border-primary transition-all group">
+            <motion.button 
+              key={itemCount}
+              initial={{ scale: 1 }}
+              animate={{ scale: [1, 1.2, 1] }}
+              className="p-3 glass rounded-full relative hover:border-primary transition-all group"
+            >
               <ShoppingCart size={20} />
               <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-[10px] font-bold flex items-center justify-center rounded-full group-hover:scale-110 transition-transform">{itemCount}</span>
-            </button>
+            </motion.button>
             {isAdmin && (
               <Link to="/admin" className="p-3 glass rounded-full hover:border-primary transition-all">
                 <AdminIcon size={20} />
@@ -97,15 +113,29 @@ export default function App() {
               
               <div className="flex flex-col gap-8 text-2xl font-display mt-10">
                 <Link to="/" onClick={() => setIsSidebarOpen(false)} className="hover:text-primary">Home</Link>
+                <Link to="/about" onClick={() => setIsSidebarOpen(false)} className="hover:text-primary">About</Link>
                 <Link to="/menu" onClick={() => setIsSidebarOpen(false)} className="hover:text-primary">Menu</Link>
                 <Link to="/reservations" onClick={() => setIsSidebarOpen(false)} className="hover:text-primary">Reservations</Link>
-                <Link to="/admin" onClick={() => setIsSidebarOpen(false)} className="hover:text-primary">Admin</Link>
+                <Link to="/contact" onClick={() => setIsSidebarOpen(false)} className="hover:text-primary">Contact</Link>
+                {isAdmin && <Link to="/admin" onClick={() => setIsSidebarOpen(false)} className="hover:text-primary">Admin</Link>}
               </div>
 
               <div className="mt-auto">
-                <button className="w-full py-4 bg-primary text-white font-bold rounded-radius-xl hover:bg-primary-light transition-all mb-4">
-                  Login
-                </button>
+                {!user ? (
+                  <button 
+                    onClick={() => { login(); setIsSidebarOpen(false); }}
+                    className="w-full py-4 bg-primary text-white font-bold rounded-radius-xl hover:bg-primary-light transition-all mb-4"
+                  >
+                    Login with Google
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => { logout(); setIsSidebarOpen(false); }}
+                    className="w-full py-4 glass border-white/10 text-white font-bold rounded-radius-xl hover:bg-white/10 transition-all mb-4"
+                  >
+                    Logout
+                  </button>
+                )}
                 <div className="flex items-center gap-2 text-gray-400 text-sm justify-center">
                   <Phone size={14} />
                   <span>+92 300 1234567</span>
@@ -117,12 +147,82 @@ export default function App() {
       </AnimatePresence>
 
       <main>
-        <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<Home />} />
-          <Route path="/menu" element={<Menu />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/menu" element={<AdminMenu />} />
-        </Routes>
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route 
+              path="/" 
+              element={
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Home />
+                </motion.div>
+              } 
+            />
+            <Route 
+              path="/menu" 
+              element={
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Menu />
+                </motion.div>
+              } 
+            />
+            <Route 
+              path="/about" 
+              element={
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <About />
+                </motion.div>
+              } 
+            />
+            <Route 
+              path="/reservations" 
+              element={
+                <motion.div
+                  initial={{ opacity: 0, scale: 1.05 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Reservations />
+                </motion.div>
+              } 
+            />
+            <Route 
+              path="/contact" 
+              element={
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Contact />
+                </motion.div>
+              } 
+            />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/menu" element={<AdminMenu />} />
+            <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/admin/reservations" element={<AdminReservations />} />
+            <Route path="/admin/customers" element={<AdminCustomers />} />
+            <Route path="/admin/promotions" element={<AdminPromotions />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
+          </Routes>
+        </AnimatePresence>
       </main>
 
       {/* Footer */}
@@ -138,10 +238,11 @@ export default function App() {
             <div>
               <h4 className="font-bold mb-6">Quick Links</h4>
               <ul className="space-y-4 text-gray-400">
+                <li><Link to="/" className="hover:text-white transition-colors">Home</Link></li>
+                <li><Link to="/about" className="hover:text-white transition-colors">Our Story</Link></li>
                 <li><Link to="/menu" className="hover:text-white transition-colors">Menu</Link></li>
                 <li><Link to="/reservations" className="hover:text-white transition-colors">Book a Table</Link></li>
-                <li><Link to="/delivery" className="hover:text-white transition-colors">Delivery Info</Link></li>
-                <li><Link to="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
+                <li><Link to="/contact" className="hover:text-white transition-colors">Contact & Delivery</Link></li>
               </ul>
             </div>
             <div>

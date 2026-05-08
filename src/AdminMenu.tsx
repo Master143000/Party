@@ -18,6 +18,8 @@ import { FirebaseService } from './services/firebaseService';
 import { db } from './firebase';
 import { collection, addDoc, deleteDoc, doc, updateDoc, getDocs, onSnapshot, query, orderBy } from 'firebase/firestore';
 
+import AdminSidebar from './AdminSidebar';
+
 export default function AdminMenu() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -94,7 +96,9 @@ export default function AdminMenu() {
   });
 
   return (
-    <div className="flex-1 ml-64 p-12 bg-[#080808] min-h-screen text-white">
+    <div className="flex min-h-screen bg-[#080808] text-white">
+      <AdminSidebar />
+      <div className="flex-1 ml-64 p-12">
       <header className="flex justify-between items-center mb-12">
         <div>
           <h1 className="text-3xl font-display font-bold">Menu Management</h1>
@@ -294,6 +298,7 @@ export default function AdminMenu() {
           </div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 }

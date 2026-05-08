@@ -5,6 +5,8 @@ import { FirebaseService } from './services/firebaseService';
 import { Product, Category } from './types';
 import { cn } from './lib/utils';
 import { useCart } from './CartContext';
+import { useAuth } from './AuthContext';
+import { Link } from 'react-router-dom';
 
 export default function Menu() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -13,17 +15,24 @@ export default function Menu() {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     async function loadMenu() {
       setLoading(true);
-      const [cats, items] = await Promise.all([
-        FirebaseService.getCategories(),
-        FirebaseService.getMenuItems()
-      ]);
-      setCategories(cats);
-      setProducts(items);
-      setLoading(false);
+      try {
+        const [cats, items] = await Promise.all([
+          FirebaseService.getCategories(),
+          FirebaseService.getMenuItems()
+        ]);
+        
+        setCategories(cats);
+        setProducts(items);
+      } catch (e) {
+        console.error("Error loading menu:", e);
+      } finally {
+        setLoading(false);
+      }
     }
     loadMenu();
   }, []);
@@ -94,57 +103,90 @@ export default function Menu() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.05
+                }
+              }
+            }}
+          >
             <AnimatePresence mode="popLayout">
               {filteredProducts.map((product) => (
                 <motion.div 
                   layout
                   key={product.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className="group relative flex flex-col h-full"
+                  variants={{
+                    hidden: { opacity: 0, y: 30 },
+                    visible: { opacity: 1, y: 0 }
+                  }}
+                  initial="hidden"
+                  animate="visible"
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  whileHover={{ y: -8 }}
+                  className="group relative flex flex-col h-full cursor-pointer"
                 >
-                  <div className="relative aspect-[4/5] rounded-radius-2xl overflow-hidden mb-6 fire-glow transition-all duration-500 group-hover:-translate-y-2">
+                  <div className="relative aspect-[4/5] rounded-radius-3xl overflow-hidden mb-6 fire-glow transition-all duration-500 border border-white/5 bg-white/5">
                     <img 
                       src={product.image} 
                       alt={product.name} 
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     
                     {product.spiceLevel > 0 && (
                       <div className="absolute top-4 left-4 flex gap-1">
                         {[...Array(product.spiceLevel)].map((_, i) => (
-                          <Flame key={i} size={16} className="text-primary fill-primary" />
+                          <motion.div
+                            key={i}
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: 0.3 + i * 0.1 }}
+                          >
+                            <Flame size={16} className="text-primary fill-primary drop-shadow-[0_0_8px_rgba(255,92,0,0.8)]" />
+                          </motion.div>
                         ))}
                       </div>
                     )}
                     
                     <div className="absolute top-4 right-4 flex flex-wrap gap-1 justify-end max-w-[150px]">
                       {product.tags.map(tag => (
-                        <span key={tag} className="px-3 py-1 bg-white text-black text-[10px] font-black uppercase rounded-full shadow-lg">
+                        <span key={tag} className="px-3 py-1 bg-white text-black text-[10px] font-black uppercase rounded-full shadow-xl">
                           {tag}
                         </span>
                       ))}
                     </div>
 
                     <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[85%] translate-y-10 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                      <button 
-                        onClick={() => addToCart(product)}
-                        className="w-full py-4 bg-white text-black font-black rounded-xl hover:bg-primary hover:text-white transition-all shadow-2xl flex items-center justify-center gap-2"
+                      <motion.button 
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addToCart(product);
+                        }}
+                        className="w-full py-4 bg-primary text-white font-black rounded-2xl hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-2 border border-primary"
                       >
                         <ShoppingCart size={18} />
                         ADD TO CART
-                      </button>
+                      </motion.button>
                     </div>
                   </div>
 
                   <div className="px-2">
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-2xl font-display font-bold tracking-tight">{product.name}</h3>
-                      <span className="text-xl font-display font-bold text-primary">Rs. {product.price}</span>
+                      <h3 className="text-2xl font-display font-bold tracking-tight group-hover:text-primary transition-colors">{product.name}</h3>
+                      <motion.span 
+                        className="text-xl font-display font-bold text-primary"
+                        whileHover={{ scale: 1.1 }}
+                      >
+                        Rs. {product.price}
+                      </motion.span>
                     </div>
                     <p className="text-gray-400 text-sm font-light leading-relaxed mb-4 line-clamp-2">
                       {product.description}
@@ -153,7 +195,7 @@ export default function Menu() {
                 </motion.div>
               ))}
             </AnimatePresence>
-          </div>
+          </motion.div>
         )}
 
         {filteredProducts.length === 0 && (
