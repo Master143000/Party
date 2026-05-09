@@ -248,6 +248,36 @@ export default function AdminMenu() {
                   </div>
                 </div>
 
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Spice Level (0-3)</label>
+                    <div className="flex gap-2">
+                       {[0, 1, 2, 3].map(level => (
+                         <button 
+                           key={level}
+                           onClick={() => setFormData({...formData, spiceLevel: level})}
+                           className={cn(
+                             "flex-1 py-3 rounded-xl border transition-all",
+                             formData.spiceLevel === level ? "bg-primary border-primary" : "bg-white/5 border-white/10"
+                           )}
+                         >
+                           {level === 0 ? 'None' : [...Array(level)].map(() => '🔥')}
+                         </button>
+                       ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Tags (Comma separated)</label>
+                    <input 
+                      type="text" 
+                      value={formData.tags?.join(', ')}
+                      onChange={(e) => setFormData({ ...formData, tags: e.target.value.split(',').map(t => t.trim()).filter(t => t) })}
+                      className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 focus:outline-none focus:border-primary" 
+                      placeholder="Popular, New, Chef Special" 
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Description</label>
                   <textarea 

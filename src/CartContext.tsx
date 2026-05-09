@@ -28,10 +28,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
       return [...prev, { 
         productId: product.id, 
-        name: product.name, 
-        price: product.price, 
+        name: product.name || 'Unnamed Item', 
+        price: product.price || 0, 
         quantity: 1, 
-        image: product.image 
+        image: product.image || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=800'
       }];
     });
   };

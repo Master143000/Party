@@ -6,7 +6,7 @@ import { Product, Category } from './types';
 import { cn } from './lib/utils';
 import { useCart } from './CartContext';
 import { useAuth } from './AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Menu() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -14,8 +14,9 @@ export default function Menu() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
-  const { addToCart } = useCart();
+  const { addToCart, itemCount } = useCart();
   const { isAdmin } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function loadMenu() {
@@ -130,17 +131,17 @@ export default function Menu() {
                   whileHover={{ y: -8 }}
                   className="group relative flex flex-col h-full cursor-pointer"
                 >
-                  <div className="relative aspect-[4/5] rounded-radius-3xl overflow-hidden mb-6 fire-glow transition-all duration-500 border border-white/5 bg-white/5">
+                  <div className="relative aspect-[4/5] rounded-radius-3xl overflow-hidden mb-6 fire-glow transition-all duration-500 border border-white/5 bg-white/5 group">
                     <img 
-                      src={product.image} 
+                      src={product.image || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=800'} 
                       alt={product.name} 
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
                     
                     {product.spiceLevel > 0 && (
-                      <div className="absolute top-4 left-4 flex gap-1">
+                      <div className="absolute top-4 left-4 flex gap-1 z-10">
                         {[...Array(product.spiceLevel)].map((_, i) => (
                           <motion.div
                             key={i}
@@ -154,21 +155,24 @@ export default function Menu() {
                       </div>
                     )}
                     
-                    <div className="absolute top-4 right-4 flex flex-wrap gap-1 justify-end max-w-[150px]">
-                      {product.tags.map(tag => (
+                    <div className="absolute top-4 right-4 flex flex-wrap gap-1 justify-end max-w-[150px] z-10">
+                      {product.tags && product.tags.map(tag => (
                         <span key={tag} className="px-3 py-1 bg-white text-black text-[10px] font-black uppercase rounded-full shadow-xl">
                           {tag}
                         </span>
                       ))}
                     </div>
 
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[85%] translate-y-10 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[85%] z-10 transition-all duration-500">
                       <motion.button 
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={(e) => {
                           e.stopPropagation();
                           addToCart(product);
+                          import('react-hot-toast').then(t => t.toast.success(`${product.name} added to cart!`, {
+                            style: { background: '#1A1A1A', color: '#fff', border: '1px solid #FF5C00' }
+                          }));
                         }}
                         className="w-full py-4 bg-primary text-white font-black rounded-2xl hover:bg-white hover:text-black transition-all shadow-2xl flex items-center justify-center gap-2 border border-primary"
                       >
@@ -212,13 +216,6 @@ export default function Menu() {
         )}
       </div>
 
-      {/* Floating Cart for Mobile */}
-      <div className="fixed bottom-32 right-6 md:hidden z-50">
-        <button className="w-16 h-16 bg-primary rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(255,92,0,0.5)] border-4 border-black group active:scale-90 transition-transform">
-           <ShoppingCart size={24} className="group-hover:scale-110 transition-transform" />
-           <span className="absolute -top-1 -right-1 w-6 h-6 bg-white text-primary text-xs font-bold rounded-full flex items-center justify-center border-2 border-black">0</span>
-        </button>
-      </div>
     </div>
   );
 }

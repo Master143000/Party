@@ -51,7 +51,7 @@ export default function AdminOrders() {
   const filteredOrders = orders.filter(order => {
     const matchesFilter = filter === 'All' || order.status === filter;
     const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         order.name.toLowerCase().includes(searchQuery.toLowerCase());
+                         order.customerName.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
@@ -121,8 +121,15 @@ export default function AdminOrders() {
                       <span className="font-mono text-xs text-gray-500">#{order.id.slice(-8).toUpperCase()}</span>
                     </td>
                     <td className="px-8 py-6">
-                      <p className="font-bold">{order.name}</p>
-                      <p className="text-xs text-gray-500">{order.phone}</p>
+                      <p className="font-bold">{order.customerName}</p>
+                      <p className="text-xs text-gray-400 mb-2">{order.phone}</p>
+                      <div className="flex flex-wrap gap-1">
+                        {order.items.map((item, i) => (
+                          <span key={i} className="text-[10px] bg-white/5 border border-white/10 px-2 py-0.5 rounded text-gray-300">
+                            {item.quantity}x {item.name}
+                          </span>
+                        ))}
+                      </div>
                     </td>
                     <td className="px-8 py-6">
                       <span className={cn(
@@ -165,6 +172,7 @@ export default function AdminOrders() {
                           </button>
                         )}
                         <button 
+                          onClick={() => setSelectedOrder(order)}
                           className="p-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all"
                           title="View Details"
                         >
@@ -185,6 +193,113 @@ export default function AdminOrders() {
           </table>
         </div>
       </main>
+
+      {/* Order Details Modal */}
+      <AnimatePresence>
+        {selectedOrder && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/90 backdrop-blur-md"
+              onClick={() => setSelectedOrder(null)}
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="glass-dark border border-white/10 w-full max-w-2xl rounded-radius-3xl overflow-hidden relative z-10"
+            >
+              <div className="p-8 border-b border-white/5 flex justify-between items-center">
+                <div>
+                  <h3 className="text-2xl font-display font-bold">Order Details</h3>
+                  <p className="text-gray-500 font-mono text-xs mt-1">#{selectedOrder.id.toUpperCase()}</p>
+                </div>
+                <button 
+                  onClick={() => setSelectedOrder(null)} 
+                  className="p-2 hover:bg-white/5 rounded-full"
+                >
+                  <XCircle size={24} />
+                </button>
+              </div>
+
+              <div className="p-8 grid grid-cols-2 gap-12">
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-xs font-black uppercase text-gray-500 mb-2">Customer Info</h4>
+                    <p className="font-bold text-lg">{selectedOrder.customerName}</p>
+                    <p className="text-gray-400">{selectedOrder.phone}</p>
+                    <p className="text-gray-400 mt-1">{selectedOrder.address}</p>
+                  </div>
+
+                  <div>
+                    <h4 className="text-xs font-black uppercase text-gray-500 mb-2">Order Options</h4>
+                    <span className="px-3 py-1 bg-primary/20 text-primary rounded-lg text-xs font-bold uppercase">
+                      {selectedOrder.type}
+                    </span>
+                  </div>
+
+                  {selectedOrder.notes && (
+                    <div>
+                      <h4 className="text-xs font-black uppercase text-gray-500 mb-2">Delivery Notes</h4>
+                      <p className="italic text-gray-400 p-4 bg-white/5 rounded-xl border-l-2 border-primary">
+                        "{selectedOrder.notes}"
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-6">
+                  <h4 className="text-xs font-black uppercase text-gray-500 mb-2">Items</h4>
+                  <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                    {selectedOrder.items.map((item, i) => (
+                      <div key={i} className="flex justify-between items-center bg-white/2 p-3 rounded-xl border border-white/5">
+                        <div className="flex gap-3 items-center">
+                          <img src={item.image} className="w-10 h-10 rounded-lg object-cover" />
+                          <div>
+                            <p className="font-bold text-sm">{item.name}</p>
+                            <p className="text-[10px] text-gray-500">{item.quantity} x Rs. {item.price}</p>
+                          </div>
+                        </div>
+                        <span className="font-bold text-primary">Rs. {item.price * item.quantity}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="pt-6 border-t border-white/10 flex justify-between items-end">
+                    <span className="text-gray-500 font-bold">Total Amount</span>
+                    <span className="text-3xl font-display font-black text-primary">Rs. {selectedOrder.total}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-8 bg-white/2 border-t border-white/5 flex gap-4">
+                 <button 
+                  onClick={() => setSelectedOrder(null)}
+                  className="flex-1 py-4 glass border-white/10 rounded-2xl font-bold hover:bg-white/5"
+                 >
+                   CLOSE
+                 </button>
+                 {selectedOrder.status !== 'delivered' && selectedOrder.status !== 'cancelled' && (
+                   <button 
+                    onClick={() => {
+                      const nextStatus = 
+                        selectedOrder.status === 'pending' ? 'preparing' : 
+                        selectedOrder.status === 'preparing' ? 'out-for-delivery' : 'delivered';
+                      updateStatus(selectedOrder.id, nextStatus);
+                      setSelectedOrder(null);
+                    }}
+                    className="flex-1 py-4 bg-primary text-white font-black rounded-2xl shadow-xl fire-glow"
+                   >
+                     MARK AS {selectedOrder.status === 'pending' ? 'PREPARING' : selectedOrder.status === 'preparing' ? 'OUT FOR DELIVERY' : 'DELIVERED'}
+                   </button>
+                 )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

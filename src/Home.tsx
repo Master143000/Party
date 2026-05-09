@@ -127,21 +127,6 @@ export default function Home() {
         </div>
       </section>
       
-      {/* Sticky Bottom Nav for Mobile */}
-      <div className="md:hidden fixed bottom-6 left-6 right-6 z-50">
-        <div className="glass-dark rounded-full p-2 flex justify-between items-center shadow-2xl">
-          <button onClick={() => navigate('/')} className="p-4 bg-primary rounded-full text-white">
-            <User size={24} />
-          </button>
-          <button onClick={() => navigate('/menu')} className="p-4">
-             <MenuIcon size={24} />
-          </button>
-          <button onClick={() => navigate('/cart')} className="p-4 bg-white/10 rounded-full relative">
-             <ShoppingCart size={24} />
-             <span className="absolute top-2 right-2 w-4 h-4 bg-primary text-[10px] flex items-center justify-center rounded-full">0</span>
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

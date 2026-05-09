@@ -44,18 +44,26 @@ export const FirebaseService = {
   },
 
   // ORDERS
-  async placeOrder(order: Omit<Order, 'id'>, items: any[]): Promise<string> {
+  async placeOrder(order: Omit<Order, 'id'>, items: OrderItem[]): Promise<string> {
     try {
-      const orderRef = await addDoc(collection(db, 'orders'), {
+      const { writeBatch, collection, doc } = await import('firebase/firestore');
+      const batch = writeBatch(db);
+      const orderRef = doc(collection(db, 'orders'));
+      
+      const orderData = {
         ...order,
         createdAt: Date.now()
+      };
+
+      batch.set(orderRef, orderData);
+      
+      // Add items to subcollection as well (optional but good for queries)
+      items.forEach((item) => {
+        const itemRef = doc(collection(db, `orders/${orderRef.id}/items`));
+        batch.set(itemRef, item);
       });
       
-      // Add items as subcollection
-      for (const item of items) {
-        await addDoc(collection(db, `orders/${orderRef.id}/items`), item);
-      }
-      
+      await batch.commit();
       return orderRef.id;
     } catch (e) {
       handleFirestoreError(e, OperationType.CREATE, 'orders');
