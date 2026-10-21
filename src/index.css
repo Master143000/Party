@@ -1,39 +1,93 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk", sans-serif;
-  
-  --color-primary: #FF5C00;
-  --color-primary-light: #FF8533;
-  --color-primary-dark: #CC4A00;
-  
-  --color-accent: #FF2E00;
-  
-  --radius-xl: 1.5rem;
-  --radius-2xl: 2rem;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Playfair Display", Georgia, serif;
+
+  --color-primary: #174734;
+  --color-primary-light: #24664A;
+  --color-primary-dark: #0D3023;
+  --color-accent: #C8A45D;
+
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.6rem;
+}
+
+:root {
+  color-scheme: light;
+  --party-cream: #F7F3E9;
+  --party-paper: #FFFCF5;
+  --party-green: #174734;
+  --party-green-deep: #0D3023;
+  --party-gold: #C8A45D;
+  --party-ink: #20352B;
+  --party-muted: #68766D;
 }
 
 @layer base {
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body {
-    @apply bg-[#0C0C0C] text-white selection:bg-primary selection:text-white;
+    margin: 0;
+    background: var(--party-cream);
+    color: var(--party-ink);
+    font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    selection-background-color: var(--party-gold);
+    selection-color: var(--party-green-deep);
+  }
+  button, input, textarea, select { font: inherit; }
+  button, a { -webkit-tap-highlight-color: transparent; }
+  :focus-visible { outline: 3px solid var(--party-gold); outline-offset: 3px; }
+}
+
+/* Keep the existing route and component structure; refresh its visual system only. */
+.glass {
+  background: rgba(255, 252, 245, 0.84);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(23, 71, 52, 0.12);
+  box-shadow: 0 12px 32px rgba(13, 48, 35, 0.06);
+}
+.glass-dark {
+  background: rgba(13, 48, 35, 0.88);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(200, 164, 93, 0.18);
+}
+.fire-glow {
+  box-shadow: 0 12px 30px rgba(23, 71, 52, 0.13);
+}
+.text-gradient {
+  background: linear-gradient(110deg, var(--party-green), var(--party-gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+::selection { background: var(--party-gold); color: var(--party-green-deep); }
+
+/* Warm cream canvas with forest-green navigation and gold details. */
+nav.fixed {
+  background: rgba(13, 48, 35, 0.96) !important;
+  border-bottom-color: rgba(200, 164, 93, 0.22) !important;
+  box-shadow: 0 8px 28px rgba(13, 48, 35, 0.12);
+}
+nav.fixed a, nav.fixed button { transition: color .2s ease, background-color .2s ease, transform .2s ease; }
+nav.fixed a:hover { color: var(--party-gold); }
+.min-h-screen.bg-\[\#0C0C0C\] {
+  background: var(--party-cream) !important;
+  color: var(--party-ink);
+}
+section.py-32 { color: var(--party-ink); }
+input, textarea, select {
+  border-color: rgba(23, 71, 52, 0.18);
+}
+input::placeholder, textarea::placeholder { color: #879188; }
+img { max-width: 100%; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
   }
 }
-
-.glass {
-  @apply bg-white/5 backdrop-blur-lg border border-white/10;
-}
-
-.glass-dark {
-  @apply bg-black/40 backdrop-blur-xl border border-white/5;
-}
-
-.fire-glow {
-  box-shadow: 0 0 20px rgba(255, 92, 0, 0.2);
-}
-
-.text-gradient {
-  @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
-}
-
